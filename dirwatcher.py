@@ -14,6 +14,10 @@ formatter = logging.Formatter(
     '%(asctime)s:%(funcName)s:%(levelname)s:%(message)s')
 file_handler = logging.FileHandler('logs/dirwatcher.log')
 file_handler.setFormatter(formatter)
+stream_handler = logging.StreamHandler(sys.stdout)
+stream_handler.setLevel(logging.INFO)
+stream_handler.setFormatter(formatter)
+logger.addHandler(stream_handler)
 logger.addHandler(file_handler)
 
 # Global Variables
@@ -24,7 +28,7 @@ banner_text = '\n' + '-' * 30 + '\n'
 def signal_handler(sig_num, frame):
     """handler for system singals"""
     global exit_flag
-    logger.warn('Received ' + signal.Signals(sig_num).name)
+    logger.warning('Received ' + signal.Signals(sig_num).name)
     exit_flag = True
 
 
@@ -111,7 +115,8 @@ def create_parser():
     parser = argparse.ArgumentParser(
         description="Watches a directory for files that contain search text"
     )
-    parser.add_argument('pollint', help="Required to set polling interval")
+    parser.add_argument(
+        '-p', '--pollint', help="Interval which it scans directory")
     parser.add_argument('searchText', help="Text that will be searched for")
     parser.add_argument('fileExt', help="Extension of files to search")
     parser.add_argument('watchDir', help="Directory to watch")
@@ -160,7 +165,10 @@ def main(args):
         sys.exit(1)
 
     # sets local variables to passed in args
-    polling_interval = int(ns.pollint)
+    if not ns.pollint:
+        polling_interval = 1
+    else:
+        polling_interval = int(ns.pollint)
     magic_text = ns.searchText
     file_ext = ns.fileExt
     watch_dir = ns.watchDir
