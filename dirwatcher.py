@@ -1,3 +1,7 @@
+# Your name, plus anyone who helped you with this assignment
+# Give credit where credit is due.
+__author__ = "hpost2019"
+
 import logging
 import time
 import signal
