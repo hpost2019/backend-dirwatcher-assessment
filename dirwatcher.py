@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter(
     '%(asctime)s:%(funcName)s:%(levelname)s:%(message)s')
-file_handler = logging.FileHandler('logs/dirwatcher.log')
+file_handler = logging.FileHandler('dirwatcher.log')
 file_handler.setFormatter(formatter)
 stream_handler = logging.StreamHandler(sys.stdout)
 stream_handler.setLevel(logging.INFO)
@@ -117,9 +117,11 @@ def create_parser():
     )
     parser.add_argument(
         '-p', '--pollint', help="Interval which it scans directory")
-    parser.add_argument('searchText', help="Text that will be searched for")
-    parser.add_argument('fileExt', help="Extension of files to search")
-    parser.add_argument('watchDir', help="Directory to watch")
+    parser.add_argument(
+        '-st', '--searchText', help="Text that will be searched for")
+    parser.add_argument(
+        '-fe', '--fileExt', help="Extension of files to search")
+    parser.add_argument('-wd', '--watchDir', help="Directory to watch")
     return parser
 
 
@@ -151,9 +153,11 @@ def main(args):
     files_dict = defaultdict(list)
 
     # creates parser for program
-    parser = create_parser()
-    ns = parser.parse_args(args)
-
+    try:
+        parser = create_parser()
+        ns = parser.parse_args(args)
+    except Exception as e:
+        logger.exception(e)
     # captures signals from OS
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
@@ -162,7 +166,6 @@ def main(args):
     if not ns:
         logger.exception('Arguments not passed correctly')
         parser.print_help()
-        sys.exit(1)
 
     # sets local variables to passed in args
     if not ns.pollint:
